@@ -12,6 +12,7 @@ use App\Models\Company;
 use App\Models\JobVacancy;
 use App\Models\Resume;
 use App\Models\JobApplication;
+use Faker\Factory as Faker;
 
 class DatabaseSeeder extends Seeder
 {
@@ -21,6 +22,8 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // User::factory(10)->create();
+
+        $faker = Faker::create();
 
         User::firstOrCreate(
             [
@@ -49,9 +52,9 @@ class DatabaseSeeder extends Seeder
 
         //create companies
         foreach ($jobData['companies'] as $company) {
-            $companyOwner = User::firstOrCreate(['email' => fake()->unique()->safeEmail()],
+            $companyOwner = User::firstOrCreate(['email' => $faker->unique()->safeEmail()],
             [
-                'name' => fake()->name(),
+                'name' => $faker->name(),
                 'password' => Hash::make('123456'),
                 'role' => 'company-owner',
                 'email_verified_at' => now(),
@@ -89,8 +92,8 @@ class DatabaseSeeder extends Seeder
         // get random job vacancy
             $jobVacancy = JobVacancy::inRandomOrder()->first();
             // create user
-            $applicant = User::firstOrCreate(['email' => fake()->unique()->safeEmail()],[
-                'name' => fake()->name(),
+            $applicant = User::firstOrCreate(['email' => $faker->unique()->safeEmail()],[
+                'name' => $faker->name(),
                 'password' => Hash::make('123456'),
                 'role' => 'job-seeker',
                 'email_verified_at' => now(),
