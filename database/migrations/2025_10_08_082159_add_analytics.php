@@ -11,10 +11,6 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->timestamp('last_login_at')->nullable();
-        });
-
         Schema::table('job_vacancies', function (Blueprint $table) {
             $table->integer('viewCount')->default(0);
         }); 
@@ -25,10 +21,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('last_login_at');
-        });
-
         Schema::table('job_vacancies', function (Blueprint $table) {
             $table->dropColumn('viewCount');
         });

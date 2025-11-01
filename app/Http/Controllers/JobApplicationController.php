@@ -11,37 +11,34 @@ class JobApplicationController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
-    {
-        $query = JobApplication::latest();
+public function index(Request $request)
+{
+    $query = JobApplication::with([
+        'user' => fn($q) => $q->withTrashed(),
+        'jobVacancy.company' => fn($q) => $q->withTrashed(),
+    ])->latest();
 
-        if (auth()->user()->role == 'company-owner') {
-            // جيب كل الشركات اللي بملكها المستخدم
-            $companyIds = auth()->user()->company->pluck('id')->toArray();
+    if (auth()->user()->role == 'company-owner') {
+        $companyIds = auth()->user()->company->pluck('id')->toArray();
 
-            // لو عنده شركات فعلاً
-            if (!empty($companyIds)) {
-                $query->whereHas('jobVacancy', function ($query) use ($companyIds) {
-                    $query->whereIn('companyId', $companyIds);
-                });
-            } else {
-                // لو ما عنده شركات، ما يعرض إشي
-                $query->whereRaw('1 = 0');
-            }
+        if (!empty($companyIds)) {
+            $query->whereHas('jobVacancy', function ($query) use ($companyIds) {
+                $query->whereIn('companyId', $companyIds);
+            });
+        } else {
+            $query->whereRaw('1 = 0');
         }
-
-        if ($request->input("archived") == "true") {
-            $query->onlyTrashed();
-        }
-
-        $applications = $query->paginate(10)->onEachSide(1);
-
-
-        return view("application.index", [
-            'applications' => $applications,
-            'request' => $request,
-        ]);
     }
+
+    if ($request->input("archived") == "true") {
+        $query->onlyTrashed();
+    }
+
+    $applications = $query->paginate(10)->onEachSide(1);
+
+    return view("application.index", compact('applications', 'request'));
+}
+
 
     public function show(string $id)
     {
